@@ -1,7 +1,7 @@
 use auth_service::Application;
 use reqwest;
 
-struct TestApp {
+pub struct TestApp {
     pub address: String,
     pub http_client: reqwest::Client,
 }
@@ -38,10 +38,10 @@ impl TestApp {
 
     pub async fn signup(&self) -> reqwest::Response {
         self.http_client
-        .post(&format!("{}/sigup", &self.address))
+        .post(&format!("{}/signup", &self.address))
         .send()
         .await
-        .execute("Failed to perform signup")
+        .expect("Failed to perform signup")
     }
 
     pub async fn login(&self) -> reqwest::Response {
@@ -49,7 +49,7 @@ impl TestApp {
         .post(&format!("{}/login", &self.address))
         .send()
         .await
-        .execute("Failed to login")
+        .expect("Failed to login")
     }
 
     pub async fn logout(&self) -> reqwest::Response {
