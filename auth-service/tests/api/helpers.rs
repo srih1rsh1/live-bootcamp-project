@@ -1,5 +1,6 @@
 use auth_service::Application;
 use reqwest;
+use uuid::Uuid;
 
 pub struct TestApp {
     pub address: String,
@@ -18,11 +19,10 @@ impl TestApp {
         let _ = tokio::spawn(app.run());
 
         let http_client = reqwest::Client::new();
-        
 
         let application = TestApp {
             address,
-            http_client
+            http_client,
         };
 
         application
@@ -30,49 +30,57 @@ impl TestApp {
 
     pub async fn get_root(&self) -> reqwest::Response {
         self.http_client
-        .get(&format!("{}/", &self.address))
-        .send()
-        .await
-        .expect("Failed to execute request.")
+            .get(&format!("{}/", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request.")
     }
 
-    pub async fn signup(&self) -> reqwest::Response {
+    pub async fn signup<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
         self.http_client
-        .post(&format!("{}/signup", &self.address))
-        .send()
-        .await
-        .expect("Failed to perform signup")
+            .post(&format!("{}/signup", &self.address))
+            .json(body)
+            .send()
+            .await
+            .expect("Failed to perform signup")
     }
 
     pub async fn login(&self) -> reqwest::Response {
         self.http_client
-        .post(&format!("{}/login", &self.address))
-        .send()
-        .await
-        .expect("Failed to login")
+            .post(&format!("{}/login", &self.address))
+            .send()
+            .await
+            .expect("Failed to login")
     }
 
     pub async fn logout(&self) -> reqwest::Response {
         self.http_client
-        .post(&format!("{}/logout", &self.address))
-        .send()
-        .await
-        .expect("Failed to logout")
+            .post(&format!("{}/logout", &self.address))
+            .send()
+            .await
+            .expect("Failed to logout")
     }
 
     pub async fn verify_2fa(self: &Self) -> reqwest::Response {
         self.http_client
-        .post(&format!("{}/verify-2fa",&self.address))
-        .send()
-        .await
-        .expect("Failed to perform two factor auth")
+            .post(&format!("{}/verify-2fa", &self.address))
+            .send()
+            .await
+            .expect("Failed to perform two factor auth")
     }
 
     pub async fn verify_token(&self) -> reqwest::Response {
         self.http_client
-        .post(&format!("{}/verify-token",&self.address))
-        .send()
-        .await
-        .expect("Failed to verify the token")
+            .post(&format!("{}/verify-token", &self.address))
+            .send()
+            .await
+            .expect("Failed to verify the token")
     }
+}
+
+pub fn get_random_email() -> String {
+    format!("{}@example.com", Uuid::new_v4())
 }
