@@ -1,21 +1,17 @@
-use crate::domain::User;
+use crate::domain::{User, UserStore, UserStoreError};
+use async_trait::async_trait;
 use std::collections::HashMap;
 
-#[derive(Debug, PartialEq)]
-pub enum UserStoreError {
-    UserAlreadyExists,
-    UserNotFound,
-    InvalidCredentials,
-    UnexpectedError,
-}
+
 
 #[derive(Default)]
 pub struct HashmapUserStore {
     pub users: HashMap<String, User>,
 }
 
-impl HashmapUserStore {
-    pub async fn add_user(&mut self, user: User) -> Result<(), UserStoreError> {
+#[async_trait]
+impl UserStore for HashmapUserStore {
+    async fn add_user(&mut self, user: User) -> Result<(), UserStoreError> {
         let email = &user.email;
 
         match self.users.contains_key(&user.email) {
@@ -27,14 +23,14 @@ impl HashmapUserStore {
         }
     }
 
-    pub async fn get_user(&self, email: &str) -> Result<User, UserStoreError> {
+    async fn get_user(&self, email: &str) -> Result<User, UserStoreError> {
         match self.users.contains_key(email) {
             true => Ok(self.users.get(email).unwrap().clone()),
             false => Err(UserStoreError::UserNotFound),
         }
     }
 
-    pub async fn validate_user(&self, email: &str, password: &str) -> Result<(), UserStoreError> {
+    async fn validate_user(&self, email: &str, password: &str) -> Result<(), UserStoreError> {
         match self.users.get(email) {
             Some(value) => match value.password == password {
                 true => Ok(()),
