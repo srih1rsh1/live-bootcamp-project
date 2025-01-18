@@ -1,4 +1,7 @@
-use auth_service::Application;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use auth_service::{Application, services::HashmapUserStore, app_state::AppState};
 use reqwest;
 use uuid::Uuid;
 
@@ -9,7 +12,9 @@ pub struct TestApp {
 
 impl TestApp {
     pub async fn new() -> Self {
-        let app = Application::build("127.0.0.1:0")
+        let user_store = HashmapUserStore{ users: HashMap::new()};
+        let app_store = AppState::new(Arc::new(RwLock::new(user_store)));
+        let app = Application::build(app_store,"127.0.0.1:0")
             .await
             .expect("Failed to Build the application");
 
