@@ -9,7 +9,6 @@ use axum::{
 use domain::AuthAPIError;
 use serde::{Deserialize, Serialize};
 use std::error::Error as error;
-use tokio::io::Join;
 use tower_http::services::ServeDir;
 
 pub mod app_state;

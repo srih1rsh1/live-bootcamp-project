@@ -1,4 +1,4 @@
-use crate::domain::{User, UserStore, UserStoreError};
+use crate::domain::{User, UserStore, UserStoreError, Password, Email};
 use async_trait::async_trait;
 use std::collections::HashMap;
 
@@ -6,33 +6,33 @@ use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct HashmapUserStore {
-    pub users: HashMap<String, User>,
+    pub users: HashMap<Email, User>,
 }
 
 #[async_trait]
 impl UserStore for HashmapUserStore {
     async fn add_user(&mut self, user: User) -> Result<(), UserStoreError> {
-        let email = &user.email;
+        let email = user.email.clone();
 
-        match self.users.contains_key(&user.email) {
+        match self.users.contains_key(&email) {
             true => Err(UserStoreError::UserAlreadyExists),
             false => {
-                self.users.insert(email.to_owned(), user);
+                self.users.insert(email, user);
                 Ok(())
             }
         }
     }
 
-    async fn get_user(&self, email: &str) -> Result<User, UserStoreError> {
-        match self.users.contains_key(email) {
-            true => Ok(self.users.get(email).unwrap().clone()),
+    async fn get_user(&self, email: &Email) -> Result<User, UserStoreError> {
+        match self.users.contains_key(&email) {
+            true => Ok(self.users.get(&email).unwrap().clone()),
             false => Err(UserStoreError::UserNotFound),
         }
     }
 
-    async fn validate_user(&self, email: &str, password: &str) -> Result<(), UserStoreError> {
-        match self.users.get(email) {
-            Some(value) => match value.password == password {
+    async fn validate_user(&self, email: &Email, password: &Password) -> Result<(), UserStoreError> {
+        match self.users.get(&email) {
+            Some(value) => match value.password.eq(password) {
                 true => Ok(()),
                 false => Err(UserStoreError::InvalidCredentials),
             },
@@ -46,10 +46,11 @@ mod test {
 
     use super::*;
     use uuid::Uuid;
+    use crate::domain::{Password,Email};
     #[tokio::test]
     async fn test_add_user() {
-        let email = format!("{}@example.com", Uuid::new_v4());
-        let password = "456hjack678";
+        let email = Email::parse(format!("{}@example.com", Uuid::new_v4())).unwrap();
+        let password = Password::parse("456hjack678".to_owned()).unwrap();
         let user1 = User::new(email, password.to_owned(), true).await;
 
         let mut users = HashmapUserStore {
@@ -63,8 +64,8 @@ mod test {
     }
     #[tokio::test]
     async fn test_get_user() {
-        let email = format!("{}@example.com", Uuid::new_v4());
-        let password = "456hjack678";
+        let email = Email::parse(format!("{}@example.com", Uuid::new_v4())).unwrap();
+        let password = Password::parse("456hjack678".to_owned()).unwrap();
         let user1 = User::new(email, password.to_owned(), true).await;
 
         let users = HashmapUserStore {
@@ -79,8 +80,8 @@ mod test {
 
     #[tokio::test]
     async fn test_validate_user() {
-        let email = format!("{}@example.com", Uuid::new_v4());
-        let password = "456hjack678";
+        let email = Email::parse(format!("{}@example.com", Uuid::new_v4())).unwrap();
+        let password = Password::parse("456hjack678".to_owned()).unwrap();
         let user1 = User::new(email, password.to_owned(), true).await;
 
         let users = HashmapUserStore {
