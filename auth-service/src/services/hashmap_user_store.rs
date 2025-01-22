@@ -46,7 +46,7 @@ mod test {
 
     use super::*;
     use uuid::Uuid;
-    use crate::domain::{Password,Email};
+    use crate::domain::{Email, Parse, Password};
     #[tokio::test]
     async fn test_add_user() {
         let email = Email::parse(format!("{}@example.com", Uuid::new_v4())).unwrap();

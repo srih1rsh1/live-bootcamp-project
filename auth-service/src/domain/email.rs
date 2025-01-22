@@ -3,9 +3,14 @@ use validator::validate_email;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Email(String);
 
-impl Email {
+pub trait  Parse<T> {
+    fn parse(input: String) -> Result<T, String>;
+}
+
+impl Parse<Self> for  Email {
     
-   pub fn parse(s: String) -> Result<Email, String> {
+   fn parse(s: String) -> Result<Self, String>
+    {
 
         if validate_email(&s) {
             Ok(Self(s))

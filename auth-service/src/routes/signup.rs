@@ -1,6 +1,6 @@
 use std::clone;
 
-use crate::{app_state::AppState, domain::{AuthAPIError, User, UserStore,Password,Email}};
+use crate::{app_state::AppState, domain::{AuthAPIError, Email, Parse, Password, User, UserStore}};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 
