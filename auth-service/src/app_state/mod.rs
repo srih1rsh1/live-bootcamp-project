@@ -3,17 +3,15 @@ use tokio::sync::RwLock;
 
 use crate::domain::UserStore;
 
-
 pub type UserStoreType = Arc<RwLock<dyn UserStore + Send + Sync>>;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub user_store: UserStoreType
+    pub user_store: UserStoreType,
 }
 
-
 impl AppState {
-    pub fn new(user_store: UserStoreType) -> AppState{
-        Self {user_store}
+    pub fn new(user_store: UserStoreType) -> AppState {
+        Self { user_store }
     }
 }

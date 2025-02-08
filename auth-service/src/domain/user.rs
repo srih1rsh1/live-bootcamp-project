@@ -1,7 +1,6 @@
 use super::email::Email;
 use crate::domain::password::Password;
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct User {
     pub email: Email,
@@ -16,5 +15,5 @@ impl User {
             password,
             requires_2fa,
         }
-    } 
+    }
 }

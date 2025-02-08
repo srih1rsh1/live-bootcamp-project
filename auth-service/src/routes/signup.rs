@@ -1,6 +1,9 @@
 use std::clone;
 
-use crate::{app_state::AppState, domain::{AuthAPIError, Email, Parse, Password, User, UserStore}};
+use crate::{
+    app_state::AppState,
+    domain::{AuthAPIError, Email, Parse, Password, User, UserStore},
+};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 
@@ -11,6 +14,7 @@ pub struct SignupRequest {
     #[serde(rename = "requires2FA")]
     pub requires_2fa: bool,
 }
+
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct SignupResponse {
     pub message: String,
@@ -21,8 +25,10 @@ pub async fn signup(
     Json(request): Json<SignupRequest>,
 ) -> Result<impl IntoResponse, AuthAPIError> {
     //let email = request.email.clone();
-    let email = Email::parse(request.email.clone()).map_err(|_|AuthAPIError::InvalidCredentials)?;
-    let password = Password::parse(request.password).map_err(|_| AuthAPIError::InvalidCredentials)?;
+    let email =
+        Email::parse(request.email.clone()).map_err(|_| AuthAPIError::InvalidCredentials)?;
+    let password =
+        Password::parse(request.password).map_err(|_| AuthAPIError::InvalidCredentials)?;
 
     let user = User::new(email, password, request.requires_2fa).await;
 
@@ -33,7 +39,7 @@ pub async fn signup(
     }
 
     if let Err(error) = user_store.add_user(user).await {
-        return  Err(AuthAPIError::UnexpectedError);
+        return Err(AuthAPIError::UnexpectedError);
     }
 
     let response = Json(SignupResponse {

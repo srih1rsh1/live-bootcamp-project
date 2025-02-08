@@ -3,7 +3,7 @@ use crate::domain::Parse;
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Password(String);
 
-impl Parse<Password> for  Password {
+impl Parse<Password> for Password {
     fn parse(p: String) -> Result<Password, String> {
         if p.chars().count() < 8 {
             Err("Please Provide the password with mini 8 characters long".to_owned())
@@ -22,16 +22,16 @@ impl AsRef<str> for Password {
 #[cfg(test)]
 mod test {
     use crate::domain::{email::Parse, password::Password};
+    use fake::{faker::internet::en::Password as FakePassword, Fake};
     use quickcheck;
     use quickcheck_macros;
-    use fake::{faker::internet::en::Password as FakePassword, Fake};
 
     #[test]
     fn test_password_empty() {
-        let password ="".to_string();
+        let password = "".to_string();
         assert!(Password::parse(password).is_err())
     }
-    
+
     #[test]
     fn test_password() {
         let password = "1234564".to_string();
@@ -39,9 +39,9 @@ mod test {
     }
 
     #[derive(Clone, Debug)]
-    struct  ValidPassword(pub String);
+    struct ValidPassword(pub String);
 
-    impl quickcheck::Arbitrary for   ValidPassword {
+    impl quickcheck::Arbitrary for ValidPassword {
         fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> Self {
             let password = FakePassword(8..30).fake_with_rng(g);
             Self(password)

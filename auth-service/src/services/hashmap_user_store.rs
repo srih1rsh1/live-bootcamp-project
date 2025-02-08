@@ -1,8 +1,6 @@
-use crate::domain::{User, UserStore, UserStoreError, Password, Email};
+use crate::domain::{Email, Password, User, UserStore, UserStoreError};
 use async_trait::async_trait;
 use std::collections::HashMap;
-
-
 
 #[derive(Default)]
 pub struct HashmapUserStore {
@@ -30,7 +28,11 @@ impl UserStore for HashmapUserStore {
         }
     }
 
-    async fn validate_user(&self, email: &Email, password: &Password) -> Result<(), UserStoreError> {
+    async fn validate_user(
+        &self,
+        email: &Email,
+        password: &Password,
+    ) -> Result<(), UserStoreError> {
         match self.users.get(&email) {
             Some(value) => match value.password.eq(password) {
                 true => Ok(()),
@@ -45,8 +47,8 @@ impl UserStore for HashmapUserStore {
 mod test {
 
     use super::*;
-    use uuid::Uuid;
     use crate::domain::{Email, Parse, Password};
+    use uuid::Uuid;
     #[tokio::test]
     async fn test_add_user() {
         let email = Email::parse(format!("{}@example.com", Uuid::new_v4())).unwrap();

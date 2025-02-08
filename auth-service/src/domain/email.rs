@@ -3,19 +3,15 @@ use validator::validate_email;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Email(String);
 
-pub trait  Parse<T> {
+pub trait Parse<T> {
     fn parse(input: String) -> Result<T, String>;
 }
 
-impl Parse<Self> for  Email {
-    
-   fn parse(s: String) -> Result<Self, String>
-    {
-
+impl Parse<Self> for Email {
+    fn parse(s: String) -> Result<Self, String> {
         if validate_email(&s) {
             Ok(Self(s))
-        }
-        else {
+        } else {
             Err("Please Enter a Valid Email Address".to_owned())
         }
     }
@@ -48,10 +44,8 @@ mod test {
         assert!(Email::parse(email).is_err());
     }
     #[test]
-    fn test_email(){
+    fn test_email() {
         let email = "harsha@example.com".to_string();
         assert!(Email::parse(email).is_ok());
     }
-
-
 }
