@@ -34,10 +34,11 @@ pub async fn signup(
 
     let mut user_store = state.user_store.write().await;
 
+    #[warn(unused_variables)]
     if let Ok(value) = user_store.get_user(&user.email).await {
         return Err(AuthAPIError::UserAlreadyExists);
     }
-
+    #[warn(unused_variables)]
     if let Err(error) = user_store.add_user(user).await {
         return Err(AuthAPIError::UnexpectedError);
     }

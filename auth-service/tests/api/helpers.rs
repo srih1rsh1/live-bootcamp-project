@@ -62,6 +62,7 @@ impl TestApp {
     {
         self.http_client
             .post(&format!("{}/login", &self.address))
+            .json(body)
             .send()
             .await
             .expect("Failed to login")
