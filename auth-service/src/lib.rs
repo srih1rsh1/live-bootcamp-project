@@ -61,13 +61,13 @@ impl Application {
             .with_state(app_state);
 
         let listener = tokio::net::TcpListener::bind(address).await?;
-        let address = listener.local_addr()?.to_string();
+        let local_address = listener.local_addr()?.to_string();
 
         //Creating a Server
         let server = axum::serve(listener, router);
 
         //Instance
-        let application = Application { server, address };
+        let application = Application { server, address: local_address };
 
         // Returns
         Ok(application)
