@@ -4,9 +4,7 @@ use chrono::Utc;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Validation};
 use serde::{Deserialize, Serialize};
 
-use super::constants::JWT_COOKIE_NAME;
-
-const JWT_SECRET: &str = "HelloWorld";
+use super::constants::{JWT_COOKIE_NAME, JWT_SECRET};
 pub const TOKEN_TTL_SECONDS: i64 = 600;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,7 +27,7 @@ pub enum GenerateTokenError {
     UnexpectedError,
 }
 
-pub fn generate_auth_token(email: &Email) -> Result<String, GenerateTokenError> {
+fn generate_auth_token(email: &Email) -> Result<String, GenerateTokenError> {
     let delta = chrono::Duration::try_seconds(TOKEN_TTL_SECONDS)
         .ok_or(GenerateTokenError::UnexpectedError)?;
 
@@ -61,7 +59,7 @@ fn create_auth_cookie(token: String) -> Cookie<'static> {
     cookie
 }
 
-fn generate_auth_cookie(email: &Email) -> Result<Cookie<'static>, GenerateTokenError> {
+pub fn generate_auth_cookie(email: &Email) -> Result<Cookie<'static>, GenerateTokenError> {
     let token = generate_auth_token(email)?;
 
     Ok(create_auth_cookie(token))
@@ -129,7 +127,7 @@ mod test {
         assert!(result.exp > exp as usize);
     }
 
-    #[tokio::test] 
+    #[tokio::test]
     async fn test_validate_token_with_invalid_token() {
         let token = "invalid_token".to_owned();
         let result = validate_token(&token).await;

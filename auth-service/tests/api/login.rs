@@ -21,11 +21,14 @@ async fn login_auth_ui() {
         "password": "12345678999"
     });
 
-    let response =app.login(&login_creds).await;
+    let response = app.login(&login_creds).await;
 
     assert_eq!(response.status().as_u16(), 200);
 
-    let auth_cookie = response.cookies().find(|cookie| cookie.name() == JWT_COOKIE_NAME).expect("No auth cookie found");
+    let auth_cookie = response
+        .cookies()
+        .find(|cookie| cookie.name() == JWT_COOKIE_NAME)
+        .expect("No auth cookie found");
 
     assert!(!auth_cookie.value().is_empty());
 }
@@ -75,5 +78,9 @@ async fn should_return_401_if_incorrect_credentials() {
 
     let response = app.login(&login_creds).await;
 
-    assert_eq!( response.status().as_u16(), 401 , "Please provide Correct Credentials")
+    assert_eq!(
+        response.status().as_u16(),
+        401,
+        "Please provide Correct Credentials"
+    )
 }

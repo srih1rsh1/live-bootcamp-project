@@ -67,7 +67,10 @@ impl Application {
         let server = axum::serve(listener, router);
 
         //Instance
-        let application = Application { server, address: local_address };
+        let application = Application {
+            server,
+            address: local_address,
+        };
 
         // Returns
         Ok(application)
