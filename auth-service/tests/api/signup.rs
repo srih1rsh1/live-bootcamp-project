@@ -82,7 +82,7 @@ async fn should_return_400_if_invalid_input() {
                 .await
                 .expect("Cloud not deserialize response body to ErrorResponse")
                 .error,
-            "Invalid credentials".to_owned()
+            "Bad credentials".to_owned()
         );
     }
 }
@@ -97,7 +97,7 @@ async fn should_return_409_if_email_already_exists() {
         "password": "67hey678",
         "requires2FA": true
     });
-    let response = app.signup(&test_case).await;
+    let _response = app.signup(&test_case).await;
     let response2 = app.signup(&test_case).await;
 
     assert_eq!(response2.status().as_u16(), 409);
