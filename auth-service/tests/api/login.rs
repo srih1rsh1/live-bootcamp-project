@@ -14,7 +14,6 @@ async fn should_return_422_if_malformed_credentials() {
 
     let login_creds = serde_json::json!({
         "email": "hellowork@gmail.com",
-        "password": "1234567"
     });
     let response = app.login(&login_creds).await;
 

@@ -23,35 +23,18 @@ pub struct LoginResponse {
     pub message: String,
 }
 
-pub async fn login(state: State<AppState>, Json(request): Json<LoginRequest>) -> impl IntoResponse {
-    let email = request.email;
-    let password = request.password;
-    let message = "Provide proper login information".to_owned();
+pub async fn login(
+    state: State<AppState>,
+    Json(request): Json<LoginRequest>,
+) -> Result<impl IntoResponse, AuthAPIError> {
+    let email = Email::parse(request.email).map_err(|_| AuthAPIError::InvalidCredentials)?;
+    let password =
+        Password::parse(request.password.clone()).map_err(|_| AuthAPIError::InvalidCredentials)?;
 
-    let loginresponse = Json(LoginResponse {
-        message: "Login Successfull...!".to_owned(),
-    });
-
-    if validate_email(email) {
-        if !password.is_empty() {
-            if password.chars().count() < 8 {
-                (
-                    StatusCode::UNPROCESSABLE_ENTITY,
-                    Json(LoginResponse { message }),
-                )
-            } else {
-                (StatusCode::OK, loginresponse)
-            }
-        } else {
-            (
-                StatusCode::UNPROCESSABLE_ENTITY,
-                Json(LoginResponse { message }),
-            )
-        }
-    } else {
-        (
-            StatusCode::UNPROCESSABLE_ENTITY,
-            Json(LoginResponse { message }),
-        )
-    }
+    Ok((
+        StatusCode::OK,
+        Json(LoginResponse {
+            message: "Login Successfull".to_owned(),
+        }),
+    ))
 }
