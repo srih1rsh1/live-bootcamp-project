@@ -33,12 +33,12 @@ pub async fn login(
 
     match user_store.validate_user(&email, &password).await {
         Ok(_) => (),
-        Err(Error) => return  Err(AuthAPIError::IncorrectCredentials)
+        Err(e) => return  Err(AuthAPIError::IncorrectCredentials)
     }
 
     match user_store.get_user(&email).await {
         Ok(_) => (),
-        Err(error) => return Err(AuthAPIError::IncorrectCredentials) 
+        Err(e) => return Err(AuthAPIError::IncorrectCredentials) 
     }
    
    drop(user_store);
