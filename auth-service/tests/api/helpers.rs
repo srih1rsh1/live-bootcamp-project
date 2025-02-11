@@ -1,6 +1,7 @@
 use auth_service::{
     app_state::AppState, services::HashmapUserStore, utils::constants::test, Application,
 };
+
 use reqwest;
 use reqwest::cookie::Jar;
 use serde::Serialize;
@@ -93,9 +94,13 @@ impl TestApp {
             .expect("Failed to perform two factor auth")
     }
 
-    pub async fn verify_token(&self) -> reqwest::Response {
+    pub async fn verify_token<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: Serialize,
+    {
         self.http_client
             .post(&format!("{}/verify-token", &self.address))
+            .json(body)
             .send()
             .await
             .expect("Failed to verify the token")
