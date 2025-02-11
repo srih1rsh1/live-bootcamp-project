@@ -22,7 +22,6 @@ pub async fn signup(
     state: State<AppState>,
     Json(request): Json<SignupRequest>,
 ) -> Result<impl IntoResponse, AuthAPIError> {
-    //let email = request.email.clone();
     let email =
         Email::parse(request.email.clone()).map_err(|_| AuthAPIError::InvalidCredentials)?;
     let password =
@@ -33,11 +32,11 @@ pub async fn signup(
     let mut user_store = state.user_store.write().await;
 
     #[warn(unused_variables)]
-    if let Ok(value) = user_store.get_user(&user.email).await {
+    if let Ok(_value) = user_store.get_user(&user.email).await {
         return Err(AuthAPIError::UserAlreadyExists);
     }
     #[warn(unused_variables)]
-    if let Err(error) = user_store.add_user(user).await {
+    if let Err(_error) = user_store.add_user(user).await {
         return Err(AuthAPIError::UnexpectedError);
     }
 

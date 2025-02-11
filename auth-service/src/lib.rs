@@ -1,6 +1,6 @@
 use app_state::AppState;
 use axum::{
-    http::StatusCode,
+    http::{Method, StatusCode},
     response::{IntoResponse, Response},
     routing::post,
     serve::Serve,
@@ -9,7 +9,7 @@ use axum::{
 use domain::AuthAPIError;
 use serde::{Deserialize, Serialize};
 use std::error::Error as error;
-use tower_http::services::ServeDir;
+use tower_http::{cors::CorsLayer, services::ServeDir};
 
 pub mod app_state;
 pub mod domain;
@@ -39,6 +39,8 @@ impl IntoResponse for AuthAPIError {
                 StatusCode::UNAUTHORIZED,
                 "Unauthorized Check Your Credentials",
             ),
+            AuthAPIError::InvalidToken => (StatusCode::UNAUTHORIZED, "Invalid JWT Token"),
+            AuthAPIError::MissingToken => (StatusCode::BAD_REQUEST, "JWT Token is Missing"),
         };
 
         let body = Json(ErrorResponse {
@@ -51,6 +53,15 @@ impl IntoResponse for AuthAPIError {
 
 impl Application {
     pub async fn build(app_state: AppState, address: &str) -> Result<Self, Box<dyn error>> {
+        let allowed_origins = [
+            "http//localhost:8000".parse()?,
+            "http://137.184.130.114:8000".parse()?,
+        ];
+        let cors = CorsLayer::new()
+            .allow_methods([Method::GET, Method::POST])
+            .allow_credentials(true)
+            .allow_origin(allowed_origins);
+
         let router = Router::new()
             .nest_service("/", ServeDir::new("assets"))
             .route("/signup", post(routes::signup))
@@ -58,7 +69,8 @@ impl Application {
             .route("/verify-2fa", post(routes::verify_2fa))
             .route("/logout", post(routes::logout))
             .route("/verify-token", post(routes::verify_token))
-            .with_state(app_state);
+            .with_state(app_state)
+            .layer(cors);
 
         let listener = tokio::net::TcpListener::bind(address).await?;
         let local_address = listener.local_addr()?.to_string();
