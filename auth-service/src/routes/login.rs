@@ -25,22 +25,22 @@ pub async fn login(
 ) -> (CookieJar, Result<impl IntoResponse, AuthAPIError>) {
     let email = match Email::parse(request.email) {
         Ok(email) => email,
-        Err(e) => return (CookieJar::new(), Err(AuthAPIError::InvalidCredentials)),
+        Err(_e) => return (CookieJar::new(), Err(AuthAPIError::InvalidCredentials)),
     };
     let password = match Password::parse(request.password) {
         Ok(passwrod) => passwrod,
-        Err(e) => return (CookieJar::new(), Err(AuthAPIError::InvalidCredentials)),
+        Err(_e) => return (CookieJar::new(), Err(AuthAPIError::InvalidCredentials)),
     };
 
     let user_store = state.user_store.read().await;
 
     let _validation = match user_store.validate_user(&email, &password).await {
         Ok(ouptput) => ouptput,
-        Err(e) => return (CookieJar::new(), Err(AuthAPIError::IncorrectCredentials)),
+        Err(_e) => return (CookieJar::new(), Err(AuthAPIError::IncorrectCredentials)),
     };
     let _get_user = match user_store.get_user(&email).await {
         Ok(info) => info,
-        Err(e) => return (CookieJar::new(), Err(AuthAPIError::IncorrectCredentials)),
+        Err(_e) => return (CookieJar::new(), Err(AuthAPIError::IncorrectCredentials)),
     };
 
     let auth_cookie = generate_auth_cookie(&email).unwrap();

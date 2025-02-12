@@ -1,20 +1,3 @@
-use super::{email::Email, password::Password, User};
-use async_trait::async_trait;
+mod data_stores;
 
-#[derive(Debug, PartialEq)]
-pub enum UserStoreError {
-    UserAlreadyExists,
-    UserNotFound,
-    InvalidCredentials,
-    UnexpectedError,
-}
-
-#[async_trait]
-pub trait UserStore {
-    async fn add_user(&mut self, user: User) -> Result<(), UserStoreError>;
-
-    async fn get_user(&self, email: &Email) -> Result<User, UserStoreError>;
-
-    async fn validate_user(&self, email: &Email, password: &Password)
-        -> Result<(), UserStoreError>;
-}
+pub use data_stores::*;

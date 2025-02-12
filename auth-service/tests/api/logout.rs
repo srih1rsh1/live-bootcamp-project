@@ -1,3 +1,5 @@
+use auth_service::{domain::BannedTokenStore, utils::constants::JWT_COOKIE_NAME};
+use axum::http::response;
 use reqwest::Url;
 
 use crate::helpers::{get_random_email, TestApp};
@@ -25,13 +27,31 @@ async fn logout_auth_ui() {
     let response = app.login(&login_creds).await;
     assert_eq!(response.status().as_u16(), 200);
 
+    let cookie = response
+        .cookies()
+        .find(|cookie| cookie.name() == JWT_COOKIE_NAME)
+        .expect("No auth cookie found");
+
+    let token = cookie.value().to_owned();
+
     // Check the response on /logout
     let response = app.logout().await;
+
     assert_eq!(response.status().as_u16(), 200);
 }
 
 #[tokio::test]
 async fn should_return_400_if_jwt_cookie_missing() {
+    let app = TestApp::new().await;
+
+    // Check the response on /logout
+    let response = app.logout().await;
+
+    assert_eq!(response.status().as_u16(), 400, "the JWT Cookie is missing");
+}
+
+#[tokio::test]
+async fn should_retunr_400_if_logout_called_twice_in_a_row() {
     let app = TestApp::new().await;
     let random_email = get_random_email();
     let signup_creds = serde_json::json!({
@@ -51,15 +71,9 @@ async fn should_return_400_if_jwt_cookie_missing() {
     let response = app.login(&login_creds).await;
     assert_eq!(response.status().as_u16(), 200);
 
-    // Check the response on /logout
     let response = app.logout().await;
     let response = app.logout().await;
-    assert_eq!(response.status().as_u16(), 400, "the JWT Cookie is missing");
-}
-
-#[tokio::test]
-async fn should_retunr_400_if_logout_called_twice_in_a_row() {
-    let app = TestApp::new().await;
+    assert_eq!(response.status().as_u16(), 400, "logged our twice");
 }
 
 #[tokio::test]
