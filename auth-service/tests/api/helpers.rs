@@ -1,3 +1,4 @@
+use auth_service::app_state::BannedTokenStoreType;
 use auth_service::services::HashsetBannedTokenStore;
 use auth_service::{
     app_state::AppState, services::HashmapUserStore, utils::constants::test, Application,
@@ -15,7 +16,7 @@ pub struct TestApp {
     pub address: String,
     pub cookie_jar: Arc<Jar>,
     pub http_client: reqwest::Client,
-    pub banned_token_store: HashsetBannedTokenStore,
+    pub banned_token_store: BannedTokenStoreType,
 }
 
 impl TestApp {
@@ -23,14 +24,16 @@ impl TestApp {
         let user_store = HashmapUserStore {
             users: HashMap::new(),
         };
+
         let banned_token_store = HashsetBannedTokenStore {
             token: HashSet::new(),
         };
 
         let cookie_jar = Arc::new(Jar::default());
+        let banned_token_store_type = Arc::new(RwLock::new(banned_token_store));
         let app_store = AppState::new(
             Arc::new(RwLock::new(user_store)),
-            Arc::new(RwLock::new(banned_token_store)),
+            banned_token_store_type.clone(),
         );
         let app = Application::build(app_store, test::APP_ADDRESS)
             .await
@@ -50,9 +53,7 @@ impl TestApp {
             address,
             cookie_jar,
             http_client,
-            banned_token_store: HashsetBannedTokenStore {
-                token: HashSet::new(),
-            },
+            banned_token_store: banned_token_store_type,
         };
 
         application

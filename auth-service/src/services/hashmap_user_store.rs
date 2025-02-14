@@ -126,10 +126,10 @@ mod test {
             token: HashSet::new(),
         };
 
-        for i in 0..2 {
+        for _i in 0..2 {
             match banned_token_store.token_store(token.clone()).await {
                 Err(error) => println!("{:?}", error),
-                Ok(value) => println!("Added the Token to the BannedTokenStore"),
+                Ok(_) => println!("Added the Token to the BannedTokenStore"),
             }
         }
     }
@@ -143,7 +143,7 @@ mod test {
 
         match banned_token_store.token_store(token.clone()).await {
             Err(error) => println!("{:?}", error),
-            Ok(value) => println!("Added the Token to the BannedTokenStore"),
+            Ok(_) => println!("Added the Token to the BannedTokenStore"),
         }
 
         match banned_token_store.check_token(token).await {

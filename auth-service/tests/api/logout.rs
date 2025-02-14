@@ -1,4 +1,7 @@
-use auth_service::{domain::BannedTokenStore, utils::constants::JWT_COOKIE_NAME};
+use auth_service::{
+    domain::{BannedTokenStore, BannedTokenStoreError},
+    utils::constants::JWT_COOKIE_NAME,
+};
 use axum::http::response;
 use reqwest::Url;
 
@@ -36,8 +39,15 @@ async fn logout_auth_ui() {
 
     // Check the response on /logout
     let response = app.logout().await;
-
     assert_eq!(response.status().as_u16(), 200);
+
+    // Check if the token is in banned token store
+    let banned_token_store = app.banned_token_store.read().await;
+    let result = banned_token_store
+        .check_token(token)
+        .await
+        .ok_or("Token is not on the banned token store");
+    assert_eq!(result.unwrap(), BannedTokenStoreError::TokenAlreadyExists);
 }
 
 #[tokio::test]
